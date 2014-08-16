@@ -1,6 +1,6 @@
 # MisfitActivity
 
-TODO: Write a gem description
+A simple ruby api gem to pull misfit activity data. 
 
 ## Installation
 
@@ -18,7 +18,23 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+# initialize a new MisfitActivity::Client passing the users token
+client = MisfitActivity::Client.new(token)
+
+# pull profile information
+client.profile
+
+# pull device information
+client.device
+
+# pull activity for one specific date
+client.activity_on_date(Date.today)
+
+# pull activity for a date range
+client.activities_in_range("2014-08-01", "2014-08-15")
+
+``` 
 
 ## Contributing
 
