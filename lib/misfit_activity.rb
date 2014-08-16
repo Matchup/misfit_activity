@@ -4,7 +4,7 @@ require 'httparty'
 module MisfitActivity
 
   class Client
-    attr_accessor :token, :status_code
+    attr_accessor :token
     BASE_URL = "https://api.misfitwearables.com/move/resource/v1/"
 
     include HTTParty
@@ -15,32 +15,53 @@ module MisfitActivity
 
     def profile
       resource_path = "user/me/profile"
+      url = BASE_URL + resource_path
 
+      response = HTTParty.get(url, headers: get_auth_header)
+
+      if response.code != 200
+        return wrap_error(response)
+      else
+        profile = {
+          name: response.parsed_response["name"],
+          email: response.parsed_response["email"],
+          gender: response.parsed_response["gender"],
+          birthday: response.parsed_response["birthday"]
+        }
+
+        return wrap_response(profile, response)
+      end
     end
 
     def device
       resource_path = "user/me/device"
 
+
     end
 
-
     def activity_on_date(date)
-      resource_path = "user/me/activity/summary"
-      url = BASE_URL + resource_path
+      response = get_activities(date, date)
 
-      query = {
-        start_date: date,
-        end_date: date,
-        detail: true
-      }
-
-      response = HTTParty.get(url, query: query, headers: get_auth_header)
       return parse_activities(response, date, date)
     end
 
 
-    def activity_in_range(start_date, end_date)
-      resource_path = "user/asd/activity/summary"
+    def activities_in_range(start_date, end_date)
+      response = get_activities(start_date, end_date)
+
+      return parse_activities(response, start_date, end_date)
+    end
+
+
+
+    # private
+    def get_auth_header
+      { 'Authorization' => "Bearer #{self.token}" }
+    end
+
+
+    def get_activities(start_date, end_date)
+      resource_path = "user/me/activity/summary"
       url = BASE_URL + resource_path
 
       query = {
@@ -49,14 +70,7 @@ module MisfitActivity
         detail: true
       }
 
-      response = HTTParty.get(url, query: query, headers: get_auth_header)
-      return parse_activities(response, start_date, end_date)
-    end
-
-
-    # private
-    def get_auth_header
-      { 'Authorization' => "Bearer #{self.token}" }
+      return HTTParty.get(url, query: query, headers: get_auth_header)
     end
 
     def parse_activities(response, start_date, end_date)
