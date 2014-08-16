@@ -23,9 +23,10 @@ module MisfitActivity
         return wrap_error(response)
       else
         profile = {
-          name: response.parsed_response["name"],
-          email: response.parsed_response["email"],
-          gender: response.parsed_response["gender"],
+          user_id:  response.parsed_response["userId"],
+          name:     response.parsed_response["name"],
+          email:    response.parsed_response["email"],
+          gender:   response.parsed_response["gender"],
           birthday: response.parsed_response["birthday"]
         }
 
@@ -35,7 +36,20 @@ module MisfitActivity
 
     def device
       resource_path = "user/me/device"
+      url = BASE_URL + resource_path
 
+      response = HTTParty.get(url, headers: get_auth_header)
+
+      if response.code != 200
+        return wrap_error(response)
+      else
+        device = {
+          device_type:    response.parsed_response["deviceType"],
+          battery_level:  response.parsed_response["batteryLevel"]
+        }
+
+        return wrap_response(device, response)
+      end
 
     end
 
